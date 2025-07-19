@@ -11,11 +11,11 @@ import java.sql.SQLException;
  * <p>
  * Required environment variables:
  * <ul>
- *     <li>POSTGRES_DB</li>
- *     <li>POSTGRES_USER</li>
- *     <li>POSTGRES_PASSWORD</li>
- *     <li>HOST</li>
- *     <li>PORT</li>
+ * <li>POSTGRES_DB</li>
+ * <li>POSTGRES_USER</li>
+ * <li>POSTGRES_PASSWORD</li>
+ * <li>HOST</li>
+ * <li>PORT</li>
  * </ul>
  */
 public final class DBConnection {
@@ -44,7 +44,7 @@ public final class DBConnection {
     }
 
     private static Connection createConnection() throws SQLException {
-        String db = System.getenv().getOrDefault("POSTGRES_DB", "buddybudget");
+        String db = System.getenv().getOrDefault("POSTGRES_DB", "expense_tracker");
         String user = System.getenv().getOrDefault("POSTGRES_USER", "postgres");
         String password = System.getenv().getOrDefault("POSTGRES_PASSWORD", "password");
         String host = System.getenv().getOrDefault("HOST", "localhost");
@@ -53,4 +53,4 @@ public final class DBConnection {
         String url = String.format("jdbc:postgresql://%s:%s/%s", host, port, db);
         return DriverManager.getConnection(url, user, password);
     }
-} 
+}
