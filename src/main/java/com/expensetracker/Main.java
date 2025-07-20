@@ -48,6 +48,7 @@ public class Main {
             System.out.println("No users found. Starting onboarding flow...");
             Flow onboardingFlow = new OnboardingFlow();
             onboardingFlow.start();
+            users = userDao.findAll();
         }
 
         Map<String, User> userMap = new HashMap<>();

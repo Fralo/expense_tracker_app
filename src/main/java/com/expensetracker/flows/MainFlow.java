@@ -85,8 +85,9 @@ public class MainFlow extends Flow {
                     CreateAccountFlow createAccountFlow = new CreateAccountFlow();
                     createAccountFlow.start();
                 }
-                case "3" -> System.out.println("[TODO] Restore Data chosen\n");
-                case "4" -> {
+                case "3" -> System.out.println("[TODO] Backup Data chosen\n");
+                case "4" -> System.out.println("[TODO] Restore Data chosen\n");
+                case "5" -> {
                     System.out.println("Exiting the application. Goodbye!");
                     exitLoop = true;
                 }
