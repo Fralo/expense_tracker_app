@@ -1,9 +1,5 @@
 package com.expensetracker.dao.jdbc;
 
-import com.expensetracker.dao.UserDao;
-import com.expensetracker.db.DBConnection;
-import com.expensetracker.model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,9 +8,13 @@ import java.sql.Statement;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PostgresUserDao implements UserDao {
+import com.expensetracker.dao.UserDao;
+import com.expensetracker.db.DBConnection;
+import com.expensetracker.model.User;
 
-    public PostgresUserDao() {
+public class JdbcUserDao implements UserDao {
+
+    public JdbcUserDao() {
         // Ensure table exists on construction
         try {
             createTableIfNotExists();
@@ -25,7 +25,7 @@ public class PostgresUserDao implements UserDao {
 
     private void createTableIfNotExists() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS users (" +
-                "id UUID PRIMARY KEY, " +
+                "id TEXT PRIMARY KEY, " +
                 "username TEXT UNIQUE NOT NULL, " +
                 "password_hash TEXT NOT NULL" +
                 ")";
@@ -37,11 +37,10 @@ public class PostgresUserDao implements UserDao {
 
     @Override
     public void save(User user) {
-        String sql = "INSERT INTO users(id, username, password_hash) VALUES (?,?,?) " +
-                "ON CONFLICT(username) DO UPDATE SET password_hash = EXCLUDED.password_hash";
+        String sql = "INSERT INTO users(id, username, password_hash) VALUES (?,?,?)";
         try (Connection conn = DBConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, user.getId());
+            ps.setString(1, user.getId().toString());
             ps.setString(2, user.getUsername());
             ps.setString(3, user.getPasswordHash());
             ps.executeUpdate();
@@ -58,9 +57,10 @@ public class PostgresUserDao implements UserDao {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    UUID id = UUID.fromString(rs.getString("id"));
                     String uname = rs.getString("username");
                     String pwd = rs.getString("password_hash");
-                    User user = new User(uname, pwd);
+                    User user = new User(id, uname, pwd);
                     return Optional.of(user);
                 }
             }

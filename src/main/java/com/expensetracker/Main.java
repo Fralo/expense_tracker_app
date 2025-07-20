@@ -15,8 +15,10 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+            String dbFile = System.getProperty("db.file", "expense_tracker.db");
+            DBConnection.initialize(dbFile);
             Connection connection = DBConnection.getInstance();
-            System.out.println("✅ Successfully connected to the Postgres database!\n");
+            System.out.println("✅ Successfully connected to the SQLite database!\n");
             runCli();
             connection.close();
         } catch (SQLException e) {

@@ -15,7 +15,11 @@ public abstract class Transaction {
     private final Category category;
 
     protected Transaction(BigDecimal amount, LocalDate date, String description, Category category) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), amount, date, description, category);
+    }
+
+    protected Transaction(UUID id, BigDecimal amount, LocalDate date, String description, Category category) {
+        this.id = id;
         this.amount = amount;
         this.date = date;
         this.description = description;

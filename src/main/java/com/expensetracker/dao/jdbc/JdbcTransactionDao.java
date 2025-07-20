@@ -1,12 +1,5 @@
 package com.expensetracker.dao.jdbc;
 
-import com.expensetracker.dao.TransactionDao;
-import com.expensetracker.db.DBConnection;
-import com.expensetracker.model.Category;
-import com.expensetracker.model.Expense;
-import com.expensetracker.model.Income;
-import com.expensetracker.model.Transaction;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
@@ -19,9 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PostgresTransactionDao implements TransactionDao {
+import com.expensetracker.dao.TransactionDao;
+import com.expensetracker.db.DBConnection;
+import com.expensetracker.model.Category;
+import com.expensetracker.model.Expense;
+import com.expensetracker.model.Income;
+import com.expensetracker.model.Transaction;
 
-    public PostgresTransactionDao() {
+public class JdbcTransactionDao implements TransactionDao {
+
+    public JdbcTransactionDao() {
         try {
             ensureTable();
         } catch (SQLException e) {
@@ -31,9 +31,9 @@ public class PostgresTransactionDao implements TransactionDao {
 
     private void ensureTable() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS transactions (" +
-                "id UUID PRIMARY KEY, " +
-                "amount NUMERIC NOT NULL, " +
-                "date DATE NOT NULL, " +
+                "id TEXT PRIMARY KEY, " +
+                "amount REAL NOT NULL, " +
+                "date TEXT NOT NULL, " +
                 "description TEXT, " +
                 "category TEXT, " +
                 "type TEXT NOT NULL" +
@@ -49,7 +49,7 @@ public class PostgresTransactionDao implements TransactionDao {
         String sql = "INSERT INTO transactions(id, amount, date, description, category, type) VALUES (?,?,?,?,?,?)";
         try (Connection conn = DBConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, transaction.getId());
+            ps.setString(1, transaction.getId().toString());
             if (transaction instanceof Expense) {
                 ps.setBigDecimal(2, transaction.getAmount().abs()); // store positive
             } else {
@@ -86,7 +86,7 @@ public class PostgresTransactionDao implements TransactionDao {
         String sql = "SELECT id, amount, date, description, category, type FROM transactions WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, id);
+            ps.setString(1, id.toString());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapRow(rs);
@@ -99,6 +99,7 @@ public class PostgresTransactionDao implements TransactionDao {
     }
 
     private Transaction mapRow(ResultSet rs) throws SQLException {
+        UUID id = UUID.fromString(rs.getString("id"));
         BigDecimal amount = rs.getBigDecimal("amount");
         LocalDate date = rs.getDate("date").toLocalDate();
         String desc = rs.getString("description");
@@ -106,8 +107,8 @@ public class PostgresTransactionDao implements TransactionDao {
         Category category = catName != null ? new Category(catName) : null;
         String type = rs.getString("type");
         if ("EXPENSE".equals(type)) {
-            return new Expense(amount, date, desc, category); // Expense ctor will negate
+            return new Expense(id, amount, date, desc, category);
         }
-        return new Income(amount, date, desc, category);
+        return new Income(id, amount, date, desc, category);
     }
 } 

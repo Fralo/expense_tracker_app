@@ -1,9 +1,5 @@
 package com.expensetracker.dao.jdbc;
 
-import com.expensetracker.dao.CategoryDao;
-import com.expensetracker.db.DBConnection;
-import com.expensetracker.model.Category;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,9 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class PostgresCategoryDao implements CategoryDao {
+import com.expensetracker.dao.CategoryDao;
+import com.expensetracker.db.DBConnection;
+import com.expensetracker.model.Category;
 
-    public PostgresCategoryDao() {
+public class JdbcCategoryDao implements CategoryDao {
+
+    public JdbcCategoryDao() {
         try {
             ensureTable();
         } catch (SQLException e) {
@@ -25,9 +25,9 @@ public class PostgresCategoryDao implements CategoryDao {
 
     private void ensureTable() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS categories (" +
-                "id UUID PRIMARY KEY, " +
+                "id TEXT PRIMARY KEY, " +
                 "name TEXT NOT NULL, " +
-                "parent_id UUID NULL" +
+                "parent_id TEXT NULL" +
                 ")";
         try (Connection conn = DBConnection.getInstance();
              Statement stmt = conn.createStatement()) {
@@ -37,11 +37,10 @@ public class PostgresCategoryDao implements CategoryDao {
 
     @Override
     public void save(Category category) {
-        String sql = "INSERT INTO categories(id, name, parent_id) VALUES (?,?,?) " +
-                "ON CONFLICT(id) DO UPDATE SET name = EXCLUDED.name, parent_id = EXCLUDED.parent_id";
+        String sql = "INSERT INTO categories(id, name, parent_id) VALUES (?,?,?)";
         try (Connection conn = DBConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, UUID.randomUUID()); // generate a random id for now
+            ps.setString(1, UUID.randomUUID().toString()); // generate a random id for now
             ps.setString(2, category.getName());
             ps.setObject(3, null); // parent handling simplified
             ps.executeUpdate();

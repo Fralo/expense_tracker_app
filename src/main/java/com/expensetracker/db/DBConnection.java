@@ -6,24 +6,25 @@ import java.sql.SQLException;
 
 /**
  * Singleton responsible for creating and providing a single {@link Connection}
- * to the underlying PostgreSQL database. Connection parameters are picked from
- * environment variables so they can be changed without recompilation.
- * <p>
- * Required environment variables:
- * <ul>
- * <li>POSTGRES_DB</li>
- * <li>POSTGRES_USER</li>
- * <li>POSTGRES_PASSWORD</li>
- * <li>HOST</li>
- * <li>PORT</li>
- * </ul>
+ * to the underlying SQLite database.
  */
 public final class DBConnection {
 
     private static volatile Connection instance;
+    private static String databasePath;
 
     private DBConnection() {
         // prevent instantiation
+    }
+
+    /**
+     * Initializes the database connection with a specific file path.
+     * This method must be called before {@link #getInstance()}.
+     *
+     * @param path the path to the SQLite database file.
+     */
+    public static void initialize(String path) {
+        databasePath = path;
     }
 
     /**
@@ -33,6 +34,9 @@ public final class DBConnection {
      * @throws SQLException if the connection cannot be established.
      */
     public static Connection getInstance() throws SQLException {
+        if (databasePath == null) {
+            throw new IllegalStateException("Database path not initialized. Call initialize() first.");
+        }
         if (instance == null || instance.isClosed()) {
             synchronized (DBConnection.class) {
                 if (instance == null || instance.isClosed()) {
@@ -44,13 +48,7 @@ public final class DBConnection {
     }
 
     private static Connection createConnection() throws SQLException {
-        String db = System.getenv().getOrDefault("POSTGRES_DB", "expense_tracker");
-        String user = System.getenv().getOrDefault("POSTGRES_USER", "postgres");
-        String password = System.getenv().getOrDefault("POSTGRES_PASSWORD", "password");
-        String host = System.getenv().getOrDefault("HOST", "localhost");
-        String port = System.getenv().getOrDefault("PORT", "5432");
-
-        String url = String.format("jdbc:postgresql://%s:%s/%s", host, port, db);
-        return DriverManager.getConnection(url, user, password);
+        String url = "jdbc:sqlite:" + databasePath;
+        return DriverManager.getConnection(url);
     }
 }
