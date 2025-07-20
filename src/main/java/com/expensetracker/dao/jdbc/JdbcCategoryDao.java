@@ -26,11 +26,10 @@ public class JdbcCategoryDao implements CategoryDao {
     private void ensureTable() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS categories (" +
                 "id INTEGER PRIMARY KEY, " +
-                "name TEXT NOT NULL, " +
-                "parent_id INTEGER NULL" +
+                "name TEXT NOT NULL" +
                 ")";
         try (Connection conn = DBConnection.getInstance();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(ddl);
         }
     }
@@ -39,7 +38,7 @@ public class JdbcCategoryDao implements CategoryDao {
     public void save(Category category) {
         String sql = "INSERT INTO categories(name, parent_id) VALUES (?,?)";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, category.getName());
             ps.setObject(2, null); // parent handling simplified
             ps.executeUpdate();
@@ -58,8 +57,8 @@ public class JdbcCategoryDao implements CategoryDao {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT id, name FROM categories";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
@@ -73,7 +72,7 @@ public class JdbcCategoryDao implements CategoryDao {
     public Optional<Category> findById(long id) {
         String sql = "SELECT id, name FROM categories WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -91,4 +90,4 @@ public class JdbcCategoryDao implements CategoryDao {
         String name = rs.getString("name");
         return new Category(id, name);
     }
-} 
+}

@@ -7,6 +7,8 @@ import com.expensetracker.model.Category;
 
 public interface CategoryDao {
     void save(Category category);
+
     List<Category> findAll();
+
     Optional<Category> findById(long id);
-} 
+}

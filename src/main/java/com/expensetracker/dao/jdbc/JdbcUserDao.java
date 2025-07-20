@@ -27,22 +27,20 @@ public class JdbcUserDao implements UserDao {
     private void createTableIfNotExists() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS users (" +
                 "id INTEGER PRIMARY KEY, " +
-                "username TEXT UNIQUE NOT NULL, " +
-                "password_hash TEXT NOT NULL" +
+                "username TEXT UNIQUE NOT NULL " +
                 ")";
         try (Connection conn = DBConnection.getInstance();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(ddl);
         }
     }
 
     @Override
     public void save(User user) {
-        String sql = "INSERT INTO users(username, password_hash) VALUES (?,?)";
+        String sql = "INSERT INTO users(username) VALUES (?)";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getUsername());
-            ps.setString(2, user.getPasswordHash());
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -56,9 +54,9 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public Optional<User> findByUsername(String username) {
-        String sql = "SELECT id, username, password_hash FROM users WHERE username = ?";
+        String sql = "SELECT id, username FROM users WHERE username = ?";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -73,9 +71,9 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public Optional<User> findById(long id) {
-        String sql = "SELECT id, username, password_hash FROM users WHERE id = ?";
+        String sql = "SELECT id, username FROM users WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -91,10 +89,10 @@ public class JdbcUserDao implements UserDao {
     @Override
     public List<User> findAll() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT id, username, password_hash FROM users";
+        String sql = "SELECT id, username FROM users";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
@@ -107,7 +105,6 @@ public class JdbcUserDao implements UserDao {
     private User mapRow(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         String uname = rs.getString("username");
-        String pwd = rs.getString("password_hash");
-        return new User(id, uname, pwd);
+        return new User(id, uname);
     }
-} 
+}

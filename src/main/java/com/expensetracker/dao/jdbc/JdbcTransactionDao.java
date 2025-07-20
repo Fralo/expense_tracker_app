@@ -38,7 +38,7 @@ public class JdbcTransactionDao implements TransactionDao {
                 "type TEXT NOT NULL" +
                 ")";
         try (Connection conn = DBConnection.getInstance();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(ddl);
         }
     }
@@ -47,7 +47,7 @@ public class JdbcTransactionDao implements TransactionDao {
     public void save(Transaction transaction) {
         String sql = "INSERT INTO transactions(amount, date, description, category, type) VALUES (?,?,?,?,?)";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (transaction instanceof Expense) {
                 ps.setBigDecimal(1, transaction.getAmount().abs()); // store positive
             } else {
@@ -73,8 +73,8 @@ public class JdbcTransactionDao implements TransactionDao {
         List<Transaction> list = new ArrayList<>();
         String sql = "SELECT id, amount, date, description, category, type FROM transactions ORDER BY date DESC";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
@@ -88,7 +88,7 @@ public class JdbcTransactionDao implements TransactionDao {
     public Transaction findById(long id) {
         String sql = "SELECT id, amount, date, description, category, type FROM transactions WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -104,7 +104,7 @@ public class JdbcTransactionDao implements TransactionDao {
     private Date parseDate(String rowDate) {
         return new Date(Long.parseLong(rowDate));
     }
-  
+
     private Transaction mapRow(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
         BigDecimal amount = rs.getBigDecimal("amount");
@@ -121,4 +121,4 @@ public class JdbcTransactionDao implements TransactionDao {
         }
         return new Income(id, amount, localDate, desc, category);
     }
-} 
+}
