@@ -9,5 +9,7 @@ public interface TransactionDao {
 
     List<Transaction> findAll();
 
+    List<Transaction> findAll(String type);
+
     Transaction findById(long id);
 }

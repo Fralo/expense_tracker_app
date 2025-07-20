@@ -22,6 +22,21 @@ public class InputReader {
         return scanner.nextLine();
     }
 
+    public String readInput(String prompt) {
+        System.out.print(prompt);
+        return readLine();
+    }
+
+    public String readInput(String prompt, String defaultValue) {
+        if (defaultValue != null && !defaultValue.isEmpty()) {
+            System.out.print(prompt + " (default: " + defaultValue + "): ");
+        } else {
+            System.out.print(prompt);
+        }
+        String input = readLine();
+        return input.isEmpty() ? defaultValue : input;
+    }
+
     public void closeScanner() {
         if (scanner != null) {
             scanner.close();

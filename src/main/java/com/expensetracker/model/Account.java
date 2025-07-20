@@ -1,35 +1,23 @@
 package com.expensetracker.model;
 
-import java.math.BigInteger;
-
 public class Account {
 
     private long id;
     private long userId;
     private final String name;
-    private final BigInteger balance;
-    private final BigInteger threshold_balance;
+    private final long balance;
 
-    public Account(long userId, String name, BigInteger balance, BigInteger threshold_balance) {
+    public Account(long userId, String name, long balance) {
         this.userId = userId;
         this.name = name;
         this.balance = balance;
-        this.threshold_balance = threshold_balance;
     }
 
-    public Account(long userId, String name, BigInteger balance) {
-        this.userId = userId;
-        this.name = name;
-        this.balance = balance;
-        this.threshold_balance = null;
-    }
-
-    public Account(long id, long userId, String name, BigInteger balance, BigInteger threshold_balance) {
+    public Account(long id, long userId, String name, long balance) {
         this.id = id;
         this.userId = userId;
         this.name = name;
         this.balance = balance;
-        this.threshold_balance = threshold_balance;
     }
 
     public long getId() {
@@ -52,12 +40,8 @@ public class Account {
         return name;
     }
 
-    public BigInteger getBalance() {
+    public long getBalance() {
         return balance;
-    }
-
-    public BigInteger getThresholdBalance() {
-        return threshold_balance;
     }
 
     @Override
@@ -67,7 +51,6 @@ public class Account {
                 ", userId=" + userId +
                 ", name='" + name + '\'' +
                 ", balance=" + balance +
-                ", threshold_balance=" + threshold_balance +
                 '}';
     }
 }

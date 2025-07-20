@@ -1,6 +1,5 @@
 package com.expensetracker.dao.jdbc;
 
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,23 +39,13 @@ public class JdbcAccountDao implements AccountDao {
 
     @Override
     public void save(Account account) {
-        String sql = "INSERT INTO accounts(user_id, name, balance, threshold_balance) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO accounts(user_id, name, balance) VALUES (?,?,?)";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            if (account.getThresholdBalance() == null) {
-                System.out.println("Threshold balance is null, setting to 0");
-            }
-            System.out.println(account.getThresholdBalance());
-
             ps.setLong(1, account.getUserId()); // store positive
             ps.setString(2, account.getName());
-            ps.setLong(3, Long.parseLong(account.getBalance().toString()));
-            if (account.getThresholdBalance() != null) {
-                ps.setLong(4, Long.parseLong(account.getThresholdBalance().toString()));
-            } else {
-                ps.setNull(4, java.sql.Types.BIGINT); // Use appropriate SQL type for null
-            }
+            ps.setLong(3, account.getBalance());
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -75,7 +64,7 @@ public class JdbcAccountDao implements AccountDao {
         }
 
         List<Account> list = new ArrayList<>();
-        String sql = "SELECT id, user_id, name, balance, threshold_balance FROM accounts WHERE user_id = ? ORDER BY name";
+        String sql = "SELECT id, user_id, name, balance FROM accounts WHERE user_id = ? ORDER BY name";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, user.getId());
@@ -111,8 +100,7 @@ public class JdbcAccountDao implements AccountDao {
         long id = rs.getLong("id");
         long userId = rs.getLong("user_id");
         String name = rs.getString("name");
-        BigInteger balance = BigInteger.valueOf(rs.getLong("balance"));
-        BigInteger thresholdBalance = BigInteger.valueOf(rs.getLong("threshold_balance"));
-        return new Account(id, userId, name, balance, thresholdBalance);
+        long balance = rs.getLong("balance");
+        return new Account(id, userId, name, balance);
     }
 }

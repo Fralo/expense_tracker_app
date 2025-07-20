@@ -1,10 +1,9 @@
 package com.expensetracker.flows;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 import com.expensetracker.AppInstance;
+import com.expensetracker.controllers.ExpenseController;
 import com.expensetracker.dao.TransactionDao;
 import com.expensetracker.dao.jdbc.JdbcTransactionDao;
 import com.expensetracker.model.Expense;
@@ -47,6 +46,9 @@ public class ManageAccountFlow extends Flow {
 
     @Override
     public void execute() {
+
+        ExpenseController expenseController = new ExpenseController();
+
         while (true) {
             System.out.println("What would you like to do?");
             System.out.println("1) Add Expense");
@@ -54,26 +56,24 @@ public class ManageAccountFlow extends Flow {
             System.out.println("3) List Expenses");
             System.out.println("4) List Incomes");
             System.out.println("5) Exit");
-            System.out.print("Choice: ");
 
-            String input = InputReader.getInstance().readLine();
+            String input = InputReader.getInstance().readInput("> ");
             switch (input) {
                 case "1" -> {
-                    System.out.println("Enter the amount: ");
-                    BigDecimal amount = new BigDecimal(InputReader.getInstance().readLine());
-                    System.out.println("Enter the date (YYYY-MM-DD): ");
-                    LocalDate date = LocalDate.parse(InputReader.getInstance().readLine());
-                    System.out.println("Enter the description: ");
-                    String description = InputReader.getInstance().readLine();
-                    Expense expense = new Expense(amount, date, description);
-                    TransactionDao transactionDao = new JdbcTransactionDao();
-                    transactionDao.save(expense);
+                    String amount = InputReader.getInstance().readInput("Enter the amount: ");
+                    String date = InputReader.getInstance().readInput("Enter the date (YYYY-MM-DD): ");
+                    String description = InputReader.getInstance().readInput("Enter the description: ");
+
+                    Expense expense = expenseController.createExpense(
+                            currentAccount.getId(),
+                            description,
+                            amount,
+                            date);
                 }
                 case "2" -> System.out.println("[TODO] Add Income chosen\n");
                 case "3" -> {
-                    TransactionDao transactionDao = new JdbcTransactionDao();
-                    List<Transaction> expenses = transactionDao.findAll();
-                    for (Transaction expense : expenses) {
+                    List<Expense> expenses = expenseController.findAllExpenses();
+                    for (Expense expense : expenses) {
                         System.out.println(expense);
                     }
                 }

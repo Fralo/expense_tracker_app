@@ -3,6 +3,7 @@ package com.expensetracker.dao.jdbc;
 import com.expensetracker.dao.CategoryDao;
 import com.expensetracker.db.DBConnection;
 import com.expensetracker.model.Category;
+import com.expensetracker.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,11 +37,10 @@ public class JdbcCategoryDao implements CategoryDao {
 
     @Override
     public void save(Category category) {
-        String sql = "INSERT INTO categories(name, parent_id) VALUES (?,?)";
+        String sql = "INSERT INTO categories(name) VALUES (?)";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, category.getName());
-            ps.setObject(2, null); // parent handling simplified
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -53,12 +53,13 @@ public class JdbcCategoryDao implements CategoryDao {
     }
 
     @Override
-    public List<Category> findAll() {
+    public List<Category> findAll(User user) {
         List<Category> list = new ArrayList<>();
-        String sql = "SELECT id, name FROM categories";
+        String sql = "SELECT id, name FROM categories WHERE user_id = ?";
         try (Connection conn = DBConnection.getInstance();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, user.getId());
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
             }

@@ -1,6 +1,5 @@
 package com.expensetracker.dao.jdbc;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -49,9 +48,9 @@ public class JdbcTransactionDao implements TransactionDao {
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             if (transaction instanceof Expense) {
-                ps.setBigDecimal(1, transaction.getAmount().abs()); // store positive
+                ps.setLong(1, transaction.getAmount() * -1); // store negative
             } else {
-                ps.setBigDecimal(1, transaction.getAmount());
+                ps.setLong(1, transaction.getAmount());
             }
             ps.setDate(2, Date.valueOf(transaction.getDate()));
             ps.setString(3, transaction.getDescription());
@@ -85,6 +84,24 @@ public class JdbcTransactionDao implements TransactionDao {
     }
 
     @Override
+    public List<Transaction> findAll(String type) {
+        List<Transaction> list = new ArrayList<>();
+        String sql = "SELECT id, amount, date, description, category, type FROM transactions WHERE type = ? ORDER BY date DESC";
+        try (Connection conn = DBConnection.getInstance();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, type);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to list transactions", e);
+        }
+        return list;
+    }
+
+    @Override
     public Transaction findById(long id) {
         String sql = "SELECT id, amount, date, description, category, type FROM transactions WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
@@ -107,7 +124,7 @@ public class JdbcTransactionDao implements TransactionDao {
 
     private Transaction mapRow(ResultSet rs) throws SQLException {
         long id = rs.getLong("id");
-        BigDecimal amount = rs.getBigDecimal("amount");
+        long amount = rs.getLong("amount");
 
         Date date = parseDate(rs.getString("date"));
         LocalDate localDate = date.toLocalDate();
