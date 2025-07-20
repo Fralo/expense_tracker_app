@@ -1,24 +1,27 @@
 package com.expensetracker.model;
 
-import java.util.UUID;
-
 public class User {
-    private final UUID id;
+    private long id;
     private final String username;
     private final String passwordHash;
 
     public User(String username, String passwordHash) {
-        this(UUID.randomUUID(), username, passwordHash);
+        this.username = username;
+        this.passwordHash = passwordHash;
     }
 
-    public User(UUID id, String username, String passwordHash) {
+    public User(long id, String username, String passwordHash) {
         this.id = id;
         this.username = username;
         this.passwordHash = passwordHash;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUsername() {

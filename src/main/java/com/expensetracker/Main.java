@@ -1,10 +1,17 @@
 package com.expensetracker;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
+import com.expensetracker.dao.TransactionDao;
+import com.expensetracker.dao.jdbc.JdbcTransactionDao;
 import com.expensetracker.db.DBConnection;
+import com.expensetracker.model.Expense;
+import com.expensetracker.model.Transaction;
 
 /**
  * Simple CLI entry point. Currently, it just verifies the DB connection and
@@ -39,9 +46,25 @@ public class Main {
 
             String input = scanner.nextLine();
             switch (input) {
-                case "1" -> System.out.println("[TODO] Add Expense chosen\n");
+                case "1" -> {
+                    System.out.println("Enter the amount: ");
+                    BigDecimal amount = new BigDecimal(scanner.nextLine());
+                    System.out.println("Enter the date (YYYY-MM-DD): ");
+                    LocalDate date = LocalDate.parse(scanner.nextLine());
+                    System.out.println("Enter the description: ");
+                    String description = scanner.nextLine();
+                    Expense expense = new Expense(amount, date, description);
+                    TransactionDao transactionDao = new JdbcTransactionDao();
+                    transactionDao.save(expense);
+                }
                 case "2" -> System.out.println("[TODO] Add Income chosen\n");
-                case "3" -> System.out.println("[TODO] List Expenses chosen\n");
+                case "3" -> {
+                    TransactionDao transactionDao = new JdbcTransactionDao();
+                    List<Transaction> expenses = transactionDao.findAll();
+                    for (Transaction expense : expenses) {
+                        System.out.println(expense);
+                    }
+                }
                 case "4" -> System.out.println("[TODO] List Incomes chosen\n");
                 case "5" -> {
                     System.out.println("Goodbye!");

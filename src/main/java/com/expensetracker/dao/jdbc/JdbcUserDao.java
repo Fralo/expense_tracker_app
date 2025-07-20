@@ -5,8 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import com.expensetracker.dao.UserDao;
 import com.expensetracker.db.DBConnection;
@@ -25,7 +26,7 @@ public class JdbcUserDao implements UserDao {
 
     private void createTableIfNotExists() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS users (" +
-                "id TEXT PRIMARY KEY, " +
+                "id INTEGER PRIMARY KEY, " +
                 "username TEXT UNIQUE NOT NULL, " +
                 "password_hash TEXT NOT NULL" +
                 ")";
@@ -37,13 +38,17 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public void save(User user) {
-        String sql = "INSERT INTO users(id, username, password_hash) VALUES (?,?,?)";
+        String sql = "INSERT INTO users(username, password_hash) VALUES (?,?)";
         try (Connection conn = DBConnection.getInstance();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, user.getId().toString());
-            ps.setString(2, user.getUsername());
-            ps.setString(3, user.getPasswordHash());
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPasswordHash());
             ps.executeUpdate();
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    user.setId(generatedKeys.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Unable to save user", e);
         }
@@ -57,16 +62,52 @@ public class JdbcUserDao implements UserDao {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    UUID id = UUID.fromString(rs.getString("id"));
-                    String uname = rs.getString("username");
-                    String pwd = rs.getString("password_hash");
-                    User user = new User(id, uname, pwd);
-                    return Optional.of(user);
+                    return Optional.of(mapRow(rs));
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding user", e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findById(long id) {
+        String sql = "SELECT id, username, password_hash FROM users WHERE id = ?";
+        try (Connection conn = DBConnection.getInstance();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding user", e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<User> findAll() {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT id, username, password_hash FROM users";
+        try (Connection conn = DBConnection.getInstance();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding users", e);
+        }
+        return list;
+    }
+
+    private User mapRow(ResultSet rs) throws SQLException {
+        long id = rs.getLong("id");
+        String uname = rs.getString("username");
+        String pwd = rs.getString("password_hash");
+        return new User(id, uname, pwd);
     }
 } 

@@ -11,11 +11,25 @@ import java.util.List;
  */
 public class Category {
 
+    private long id;
     private final String name;
     private final List<Category> subCategories = new ArrayList<>();
 
     public Category(String name) {
         this.name = name;
+    }
+
+    public Category(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

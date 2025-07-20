@@ -2,23 +2,32 @@ package com.expensetracker.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 /**
  * Common fields shared by both {@link Expense} and {@link Income}.
  */
 public abstract class Transaction {
-    private final UUID id;
+    private long id;
     private final BigDecimal amount;
     private final LocalDate date;
     private final String description;
     private final Category category;
 
-    protected Transaction(BigDecimal amount, LocalDate date, String description, Category category) {
-        this(UUID.randomUUID(), amount, date, description, category);
+    protected Transaction(BigDecimal amount, LocalDate date, String description) {
+        this.amount = amount;
+        this.date = date;
+        this.description = description;
+        this.category = null;
     }
 
-    protected Transaction(UUID id, BigDecimal amount, LocalDate date, String description, Category category) {
+    protected Transaction(BigDecimal amount, LocalDate date, String description, Category category) {
+        this.amount = amount;
+        this.date = date;
+        this.description = description;
+        this.category = category;
+    }
+
+    protected Transaction(long id, BigDecimal amount, LocalDate date, String description, Category category) {
         this.id = id;
         this.amount = amount;
         this.date = date;
@@ -26,8 +35,12 @@ public abstract class Transaction {
         this.category = category;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public BigDecimal getAmount() {
@@ -44,5 +57,10 @@ public abstract class Transaction {
 
     public Category getCategory() {
         return category;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction [id=" + id + ", amount=" + amount + ", date=" + date + ", description=" + description + ", category=" + category + "]";
     }
 } 
