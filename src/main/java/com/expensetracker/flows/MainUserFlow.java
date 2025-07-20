@@ -11,9 +11,9 @@ import com.expensetracker.model.Account;
 import com.expensetracker.model.User;
 import com.expensetracker.singleton.InputReader;
 
-public class MainFlow extends Flow {
+public class MainUserFlow extends Flow {
 
-    public MainFlow() {
+    public MainUserFlow() {
         super("Expense Tracker");
     }
 
