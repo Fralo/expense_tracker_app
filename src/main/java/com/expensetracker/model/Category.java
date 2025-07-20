@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Represents a financial category (e.g., "Food", "Transport"). A category can
  * contain sub-categories, realising the Composite pattern so that an entire
- * hierarchy can be treated uniformly.
+ * hierarchy can be treated uniformly. -- non si fa realmente cosi, da rivedere
  */
 public class Category {
 
@@ -38,4 +38,4 @@ public class Category {
     public String toString() {
         return name;
     }
-} 
+}
