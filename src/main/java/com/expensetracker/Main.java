@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import com.expensetracker.dao.UserDao;
 import com.expensetracker.dao.jdbc.JdbcUserDao;
@@ -14,6 +13,7 @@ import com.expensetracker.flows.OnboardingFlow;
 import com.expensetracker.flows.Flow;
 import com.expensetracker.flows.MainFlow;
 import com.expensetracker.model.User;
+import com.expensetracker.singleton.InputReader;
 
 /**
  * Simple CLI entry point. Currently, it just verifies the DB connection and
@@ -47,7 +47,7 @@ public class Main {
         if (users.isEmpty()) {
             System.out.println("No users found. Starting onboarding flow...");
             Flow onboardingFlow = new OnboardingFlow();
-            onboardingFlow.execute();
+            onboardingFlow.start();
         }
 
         Map<String, User> userMap = new HashMap<>();
@@ -62,29 +62,25 @@ public class Main {
         }
         System.out.println("[" + (userMap.size() + 1) + "] Exit");
         System.out.print("Choice: ");
-        Scanner scanner = new Scanner(System.in);
-        String choice = scanner.nextLine();
+        String choice = InputReader.getInstance().readLine();
 
         if (choice.equals(String.valueOf(userMap.size() + 1))) {
             System.out.println("Exiting...");
-            scanner.close();
             return;
         }
 
         User selectedUser = userMap.get(choice);
         if (selectedUser == null) {
             System.out.println("Invalid choice. Exiting...");
-            scanner.close();
             return;
         }
 
         AppInstance.getInstance().setCurrentUser(selectedUser);
 
         Flow mainFlow = new MainFlow();
-        mainFlow.execute();
+        mainFlow.start();
 
         AppInstance.getInstance().clearCurrentUser();
         System.out.println("Thank you for using the Expense Tracker! Goodbye!");
-        scanner.close();
     }
 }

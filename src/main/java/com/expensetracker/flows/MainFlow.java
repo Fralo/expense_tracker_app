@@ -3,15 +3,20 @@ package com.expensetracker.flows;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import com.expensetracker.AppInstance;
 import com.expensetracker.dao.AccountDao;
 import com.expensetracker.dao.jdbc.JdbcAccountDao;
 import com.expensetracker.model.Account;
 import com.expensetracker.model.User;
+import com.expensetracker.singleton.InputReader;
 
 public class MainFlow extends Flow {
+
+    public MainFlow() {
+        super("Expense Tracker");
+    }
+
     @Override
     public void execute() {
 
@@ -20,8 +25,6 @@ public class MainFlow extends Flow {
             System.out.println("No user is currently logged in. Please log in first.");
             return;
         }
-
-        Scanner scanner = new Scanner(System.in);
 
         System.out.println("Welcome, " + currentUser.getUsername() + "!");
 
@@ -36,9 +39,15 @@ public class MainFlow extends Flow {
             System.out.println("5) Logout");
 
             System.out.print("Choice: ");
-            String input = scanner.nextLine();
+
+            String input = InputReader.getInstance().readLine();
             switch (input) {
                 case "1" -> {
+
+                    // Clear console for better user experience
+                    System.out.print("\033[H\033[2J");
+                    System.out.flush();
+
                     System.out.println("Select an account to manage:");
 
                     AccountDao accountDao = new JdbcAccountDao();
@@ -55,7 +64,7 @@ public class MainFlow extends Flow {
                     }
                     System.out.println("[" + (accountMap.size() + 1) + "] Create New Account");
                     System.out.print("Choice: ");
-                    String choice = scanner.nextLine();
+                    String choice = InputReader.getInstance().readLine();
 
                     if (accountMap.containsKey(choice)) {
                         Account selectedAccount = accountMap.get(choice);
@@ -66,16 +75,15 @@ public class MainFlow extends Flow {
                         // Logic to create a new account can be added here
                     } else {
                         System.out.println("Invalid choice. Please try again.");
-                        scanner.close();
                         return;
                     }
 
                     ManageAccountFlow manageAccountFlow = new ManageAccountFlow();
-                    manageAccountFlow.execute();
+                    manageAccountFlow.start();
                 }
                 case "2" -> {
                     CreateAccountFlow createAccountFlow = new CreateAccountFlow();
-                    createAccountFlow.execute();
+                    createAccountFlow.start();
                 }
                 case "3" -> System.out.println("[TODO] Restore Data chosen\n");
                 case "4" -> {
@@ -87,7 +95,6 @@ public class MainFlow extends Flow {
         }
 
         AppInstance.getInstance().clearCurrentUser();
-        scanner.close();
         return;
     }
 

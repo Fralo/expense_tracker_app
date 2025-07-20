@@ -9,17 +9,20 @@ import com.expensetracker.model.Account;
 import com.expensetracker.model.User;
 
 public class CreateAccountFlow extends Flow {
-    @Override
-    public void execute() {
-        AppInstance appInstance = AppInstance.getInstance();
-        if (appInstance.getCurrentUser() == null) {
+
+    private User user;
+
+    public CreateAccountFlow() {
+        super("Create Account");
+        user = AppInstance.getInstance().getCurrentUser();
+        if (user == null) {
             System.out.println("No user is currently logged in. Please log in first.");
             return;
         }
+    }
 
-        User user = appInstance.getCurrentUser();
-
-        System.out.println("=== Create Account ===");
+    @Override
+    public void execute() {
         System.out.println("To create a new account, please provide the following details:");
 
         System.out.println("What would be the name of the account?");
