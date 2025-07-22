@@ -2,8 +2,10 @@ package com.expensetracker.controllers;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.expensetracker.model.Account;
 import com.expensetracker.model.Expense;
 import com.expensetracker.model.Transaction;
 
@@ -26,8 +28,8 @@ public class ExpenseController extends TransactionController {
         return (transaction instanceof Expense) ? (Expense) transaction : null;
     }
 
-    public List<Expense> findAllExpenses() {
-        List<Transaction> transactions = super.getAllTransactions("EXPENSE");
+    public List<Expense> findAllExpenses(Account account) {
+        List<Transaction> transactions = super.getAllTransactions(account, new ArrayList<>(List.of("EXPENSE")));
         return transactions.stream()
                 .filter(transaction -> transaction instanceof Expense)
                 .map(transaction -> (Expense) transaction)

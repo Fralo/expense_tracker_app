@@ -24,10 +24,9 @@ public class CreateAccountFlow extends Flow {
         AccountController accountController = new AccountController();
 
         System.out.println("To create a new account, please provide the following details:");
-
         System.out.println("What would be the name of the account?");
-        String accountName = InputReader.getInstance().readInput("> ");
 
+        String accountName = InputReader.getInstance().readInput("> ");
         String initialBalance = InputReader.getInstance().readInput("What is the initial balance of the account?", "0");
 
         accountController.createAccount(user.getId(), accountName, initialBalance);

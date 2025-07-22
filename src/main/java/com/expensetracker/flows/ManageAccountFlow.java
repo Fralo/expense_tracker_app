@@ -72,7 +72,7 @@ public class ManageAccountFlow extends Flow {
                 }
                 case "2" -> System.out.println("[TODO] Add Income chosen\n");
                 case "3" -> {
-                    List<Expense> expenses = expenseController.findAllExpenses();
+                    List<Expense> expenses = expenseController.findAllExpenses(currentAccount);
                     for (Expense expense : expenses) {
                         System.out.println(expense);
                     }

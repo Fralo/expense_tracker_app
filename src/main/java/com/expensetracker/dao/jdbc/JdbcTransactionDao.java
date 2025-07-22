@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.expensetracker.dao.TransactionDao;
 import com.expensetracker.db.DBConnection;
+import com.expensetracker.model.Account;
 import com.expensetracker.model.Category;
 import com.expensetracker.model.Expense;
 import com.expensetracker.model.Income;
@@ -30,6 +31,7 @@ public class JdbcTransactionDao implements TransactionDao {
     private void ensureTable() throws SQLException {
         String ddl = "CREATE TABLE IF NOT EXISTS transactions (" +
                 "id INTEGER PRIMARY KEY, " +
+                "account_id INTEGER NOT NULL, " +
                 "amount REAL NOT NULL, " +
                 "date TEXT NOT NULL, " +
                 "description TEXT, " +
@@ -44,18 +46,19 @@ public class JdbcTransactionDao implements TransactionDao {
 
     @Override
     public void save(Transaction transaction) {
-        String sql = "INSERT INTO transactions(amount, date, description, category, type) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO transactions(account_id, amount, date, description, category, type) VALUES (?,?,?,?,?,?)";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setLong(1, transaction.getAccountId());
             if (transaction instanceof Expense) {
-                ps.setLong(1, transaction.getAmount() * -1); // store negative
+                ps.setLong(2, transaction.getAmount() * -1); // store negative
             } else {
-                ps.setLong(1, transaction.getAmount());
+                ps.setLong(2, transaction.getAmount());
             }
-            ps.setDate(2, Date.valueOf(transaction.getDate()));
-            ps.setString(3, transaction.getDescription());
-            ps.setString(4, transaction.getCategory() != null ? transaction.getCategory().getName() : null);
-            ps.setString(5, transaction instanceof Expense ? "EXPENSE" : "INCOME");
+            ps.setDate(3, Date.valueOf(transaction.getDate()));
+            ps.setString(4, transaction.getDescription());
+            ps.setString(5, transaction.getCategory() != null ? transaction.getCategory().getName() : null);
+            ps.setString(6, transaction instanceof Expense ? "EXPENSE" : "INCOME");
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -84,12 +87,13 @@ public class JdbcTransactionDao implements TransactionDao {
     }
 
     @Override
-    public List<Transaction> findAll(String type) {
+    public List<Transaction> findAll(Account account, ArrayList<String> types) {
         List<Transaction> list = new ArrayList<>();
-        String sql = "SELECT id, amount, date, description, category, type FROM transactions WHERE type = ? ORDER BY date DESC";
+        String sql = "SELECT id, account_id, amount, date, description, category, type FROM transactions WHERE type IN (?) AND account_id = ? ORDER BY date DESC";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, type);
+            ps.setString(1, String.join(",", types));
+            ps.setLong(2, account.getId());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(mapRow(rs));
