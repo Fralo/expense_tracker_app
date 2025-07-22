@@ -30,7 +30,7 @@ public class CreateAccountFlow extends Flow {
 
         String initialBalance = InputReader.getInstance().readInput("What is the initial balance of the account?", "0");
 
-        accountController.createAccount(user.getId(), accountName, Long.parseLong(initialBalance));
+        accountController.createAccount(user.getId(), accountName, initialBalance);
 
         System.out.println("Congratulations " + user.getUsername() + "! Your account has been set up successfully.");
     }
