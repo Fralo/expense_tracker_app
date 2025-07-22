@@ -4,10 +4,9 @@ import java.util.List;
 
 import com.expensetracker.AppInstance;
 import com.expensetracker.controllers.ExpenseController;
-import com.expensetracker.dao.TransactionDao;
-import com.expensetracker.dao.jdbc.JdbcTransactionDao;
+import com.expensetracker.controllers.IncomeController;
 import com.expensetracker.model.Expense;
-import com.expensetracker.model.Transaction;
+import com.expensetracker.model.Income;
 import com.expensetracker.model.User;
 import com.expensetracker.singleton.InputReader;
 import com.expensetracker.model.Account;
@@ -48,6 +47,7 @@ public class ManageAccountFlow extends Flow {
     public void execute() {
 
         ExpenseController expenseController = new ExpenseController();
+        IncomeController incomeController = new IncomeController();
 
         while (true) {
             System.out.println("What would you like to do?");
@@ -64,41 +64,41 @@ public class ManageAccountFlow extends Flow {
                     String date = InputReader.getInstance().readInput("Enter the date (YYYY-MM-DD): ");
                     String description = InputReader.getInstance().readInput("Enter the description: ");
 
-                    Expense expense = expenseController.createExpense(
+                    expenseController.createExpense(
                             currentAccount.getId(),
                             description,
                             amount,
                             date);
                 }
-                case "2" -> System.out.println("[TODO] Add Income chosen\n");
+                case "2" -> {
+                    String amount = InputReader.getInstance().readInput("Enter the amount: ");
+                    String date = InputReader.getInstance().readInput("Enter the date (YYYY-MM-DD): ");
+                    String description = InputReader.getInstance().readInput("Enter the description: ");
+
+                    incomeController.createIncome(
+                            currentAccount.getId(),
+                            description,
+                            amount,
+                            date);
+                }
                 case "3" -> {
                     List<Expense> expenses = expenseController.findAllExpenses(currentAccount);
                     for (Expense expense : expenses) {
                         System.out.println(expense);
                     }
                 }
-                case "4" -> System.out.println("[TODO] List Incomes chosen\n");
+                case "4" -> {
+                    List<Income> incomes = incomeController.findAllIncomes(currentAccount);
+                    for (Income income : incomes) {
+                        System.out.println(income);
+                    }
+                }
                 case "5" -> {
                     System.out.println("Goodbye!");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // clear console
-                    System.out.print("\033[H\033[2J");
-                    System.out.flush();
                     return;
                 }
                 default -> System.out.println("Invalid choice. Try again.\n");
             }
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
-
 }

@@ -23,11 +23,6 @@ public class ExpenseController extends TransactionController {
         return (Expense) super.createTransaction(expense);
     }
 
-    public Expense getExpenseById(long id) {
-        Transaction transaction = super.getTransactionById(id);
-        return (transaction instanceof Expense) ? (Expense) transaction : null;
-    }
-
     public List<Expense> findAllExpenses(Account account) {
         List<Transaction> transactions = super.getAllTransactions(account, new ArrayList<>(List.of("EXPENSE")));
         return transactions.stream()

@@ -12,14 +12,17 @@ import java.util.List;
 public class Category {
 
     private long id;
+    private long userId;
     private final String name;
     private final List<Category> subCategories = new ArrayList<>();
 
-    public Category(String name) {
+    public Category(long userId, String name) {
+        this.userId = userId;
         this.name = name;
     }
 
-    public Category(long id, String name) {
+    public Category(long id, long userId, String name) {
+        this.userId = userId;
         this.id = id;
         this.name = name;
     }
@@ -30,6 +33,14 @@ public class Category {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public String getName() {

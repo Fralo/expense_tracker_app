@@ -14,8 +14,8 @@ public class CategoryController {
         this.categoryDao = new JdbcCategoryDao();
     }
 
-    public void createCategory(String name) {
-        Category category = new Category(name);
+    public void createCategory(User user, String name) {
+        Category category = new Category(user.getId(), name);
         categoryDao.save(category);
     }
 

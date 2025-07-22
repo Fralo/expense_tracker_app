@@ -35,7 +35,7 @@ public class JdbcTransactionDao implements TransactionDao {
                 "amount REAL NOT NULL, " +
                 "date TEXT NOT NULL, " +
                 "description TEXT, " +
-                "category TEXT, " +
+                "category_id INTEGER, " +
                 "type TEXT NOT NULL" +
                 ")";
         try (Connection conn = DBConnection.getInstance();
@@ -46,7 +46,7 @@ public class JdbcTransactionDao implements TransactionDao {
 
     @Override
     public void save(Transaction transaction) {
-        String sql = "INSERT INTO transactions(account_id, amount, date, description, category, type) VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO transactions(account_id, amount, date, description, category_id, type) VALUES (?,?,?,?,?,?)";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, transaction.getAccountId());
@@ -57,7 +57,11 @@ public class JdbcTransactionDao implements TransactionDao {
             }
             ps.setDate(3, Date.valueOf(transaction.getDate()));
             ps.setString(4, transaction.getDescription());
-            ps.setString(5, transaction.getCategory() != null ? transaction.getCategory().getName() : null);
+            if (transaction.getCategory() != null) {
+                ps.setLong(5, transaction.getCategory().getId());
+            } else {
+                ps.setNull(5, java.sql.Types.BIGINT);
+            }
             ps.setString(6, transaction instanceof Expense ? "EXPENSE" : "INCOME");
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -89,7 +93,7 @@ public class JdbcTransactionDao implements TransactionDao {
     @Override
     public List<Transaction> findAll(Account account, ArrayList<String> types) {
         List<Transaction> list = new ArrayList<>();
-        String sql = "SELECT id, account_id, amount, date, description, category, type FROM transactions WHERE type IN (?) AND account_id = ? ORDER BY date DESC";
+        String sql = "SELECT id, account_id, amount, date, description, category_id, type FROM transactions WHERE type IN (?) AND account_id = ? ORDER BY date DESC";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, String.join(",", types));
@@ -107,7 +111,7 @@ public class JdbcTransactionDao implements TransactionDao {
 
     @Override
     public Transaction findById(long id) {
-        String sql = "SELECT id, amount, date, description, category, type FROM transactions WHERE id = ?";
+        String sql = "SELECT id, amount, date, description, category_id, type FROM transactions WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
@@ -134,8 +138,8 @@ public class JdbcTransactionDao implements TransactionDao {
         LocalDate localDate = date.toLocalDate();
 
         String desc = rs.getString("description");
-        String catName = rs.getString("category");
-        Category category = catName != null ? new Category(catName) : null;
+        String category_id = rs.getString("category_id");
+        Category category = category_id != null ? new Category(Long.parseLong(category_id), null) : null;
         String type = rs.getString("type");
         if ("EXPENSE".equals(type)) {
             return new Expense(id, amount, localDate, desc, category);
