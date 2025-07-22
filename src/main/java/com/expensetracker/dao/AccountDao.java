@@ -9,6 +9,8 @@ import com.expensetracker.model.User;
 public interface AccountDao {
     void save(Account user);
 
+    void update(Account account);
+
     Optional<Account> findById(long id);
 
     List<Account> findAll(User user);

@@ -24,6 +24,14 @@ The Factory Method pattern provides an interface for creating objects in a super
 
 - **`AmountConverterFactory`**: This class provides a factory method to create different types of amount converters (`DecimalAmountConverter`). This allows the application to easily support different number formats in the future.
 
+### Model-View-Controller (MVC)
+
+The MVC pattern is an architectural pattern that separates an application into three main logical components: the model, the view, and the controller.
+
+- **Model**: Manages the application's data and business logic. In our application, the `model` package contains the model classes (`User`, `Account`, `Transaction`, etc.).
+- **View**: Displays the data to the user. The `view` package contains the `AppView` interface and the `CliView` implementation. The `CliView` is responsible for all command-line input and output.
+- **Controller**: Handles user input and updates the model. The `controllers` package contains the `MainController`, `UserController`, `AccountController`, and `TransactionController`. The `MainController` is the main controller of the application, and it coordinates the other controllers.
+
 ## Potential Design Patterns to Implement
 
 ### Observer
@@ -43,12 +51,3 @@ The Strategy pattern is a behavioral design pattern that lets you define a famil
 The Command pattern is a behavioral design pattern that turns a request into a stand-alone object that contains all information about the request. This transformation lets you pass requests as a method arguments, delay or queue a request’s execution, and support undoable operations.
 
 - **Use Case**: This could be used to encapsulate actions like "add expense", "create account", etc. Each action would be a command object. This would make it easier to implement features like an undo/redo stack. It would also help to decouple the user interface from the business logic.
-
-### Model-View-Controller (MVC)
-
-The MVC pattern is an architectural pattern that separates an application into three main logical components: the model, the view, and the controller.
-
-- **Use Case**: Your project already has a `model` and `controllers` package. You could formalize the MVC structure by creating a `view` package for all UI-related classes. This would lead to a better separation of concerns and make the application easier to maintain and test.
-  - **Model**: Manages the application's data and business logic.
-  - **View**: Displays the data to the user.
-  - **Controller**: Handles user input and updates the model.

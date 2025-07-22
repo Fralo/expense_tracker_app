@@ -23,10 +23,6 @@ public class UserController {
         return user;
     }
 
-    public User getUserById(long id) {
-        return userDao.findById(id).orElse(null);
-    }
-
     public List<User> getAllUsers() {
         return userDao.findAll();
     }

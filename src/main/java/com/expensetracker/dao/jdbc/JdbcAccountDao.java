@@ -80,8 +80,21 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
+    public void update(Account account) {
+        String sql = "UPDATE accounts SET balance = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getInstance();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, account.getBalance());
+            ps.setLong(2, account.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to update account", e);
+        }
+    }
+
+    @Override
     public Optional<Account> findById(long id) {
-        String sql = "SELECT id, amount, date, description, category, type FROM accounts WHERE id = ?";
+        String sql = "SELECT id, user_id, name, balance FROM accounts WHERE id = ?";
         try (Connection conn = DBConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);

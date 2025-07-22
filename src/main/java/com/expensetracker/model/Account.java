@@ -5,7 +5,7 @@ public class Account {
     private long id;
     private long userId;
     private final String name;
-    private final long balance;
+    private long balance;
 
     public Account(long userId, String name, long balance) {
         this.userId = userId;
@@ -42,6 +42,10 @@ public class Account {
 
     public long getBalance() {
         return balance;
+    }
+
+    public void setBalance(long balance) {
+        this.balance = balance;
     }
 
     @Override
