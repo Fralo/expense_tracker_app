@@ -65,7 +65,9 @@ public class CliView implements AppView {
 
     @Override
     public int showMainMenu() {
-        System.out.println("\n\n");
+        clearConsole();
+
+        System.out.println("\n");
         System.out.println("=== What would you like to do? ===");
         System.out.println("1) Manage Account");
         System.out.println("2) Create Account");
@@ -169,4 +171,9 @@ public class CliView implements AppView {
         System.out.print("Enter description: ");
         return InputReader.getInstance().readLine();
     }
-} 
+
+    public void clearConsole() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+}
